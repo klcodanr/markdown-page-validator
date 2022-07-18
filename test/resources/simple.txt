@@ -1,0 +1,9 @@
+Algorithms are a specific set of instructions or steps on how to complete a task. For example, a computer scientist wants to sort playing cards. There are many ways to sort them - by suits (diamonds, clubs, hearts, and spades) or by numbers (2, 3, 4, 5, 6, 7, 8, 9, 10, Jack, Queen, King, and Ace). By deciding on a set of steps to sort the cards, the scientist has created an algorithm. The scientist then needs to test whether this algorithm works. This shows how well and how fast the algorithm sorts cards.
+
+A simple but slow algorithm is: pick up two cards and check whether they are sorted correctly. If they are not, reverse them. Then do it again with another two, and repeat them all until they are all sorted. This "bubble sort" method will work, but it will take a very long time.
+
+A better algorithm is: find the first card with the smallest suit and smallest number (2 of diamonds), and place it at the start. After this, look for the second card, and so on. This algorithm is much faster, and does not need much space. This algorithm is a "selection sort".
+
+Ada Lovelace wrote the first computer algorithm in 1843, for a computer that was never finished. Computers began during World War II.[1] Computer science separated from the other sciences during the 1960s and 1970s. Now, computer science has its own methods, and has its own technical terms. It is related to electrical engineering, mathematics, and language science.
+
+Computer science looks at the theoretical parts of computers. Computer engineering looks at the physical parts of computers (hardware). Software engineering looks at the use of computer programs and how to make them. 

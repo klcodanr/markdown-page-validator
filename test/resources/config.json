@@ -1,0 +1,10 @@
+{
+  "baseDirectory": "./test/resources/simple",
+  "mode": "matching",
+  "modeConfig": {},
+  "checks": [
+    {
+      "name": "WriteGood"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ export class ValidationRequest {
 
 export interface MarkdownFile {
   file: string;
+  lines: Array<string>;
   markdown: string;
   properties: Object;
   text: string;

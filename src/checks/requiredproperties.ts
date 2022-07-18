@@ -1,5 +1,5 @@
 import { Logger } from "winston";
-import { Result, updateStatus } from "..";
+import { Result, updateStatus } from "../validator";
 
 import { Check, CheckResult, Status } from "../check";
 import { MarkdownFile } from "../request";

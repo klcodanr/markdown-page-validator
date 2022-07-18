@@ -4,6 +4,12 @@ import writeGood from "write-good";
 import { Check, CheckResult, Status } from "../check";
 import { MarkdownFile } from "../request";
 
+interface WriteGoodResult {
+  index: number;
+  offset: number;
+  reason: string;
+}
+
 export interface WriteGoodSettings {
   warnLimit?: number;
   options?: any;
@@ -17,7 +23,16 @@ export class WriteGood implements Check<WriteGoodSettings> {
     log: Logger
   ): Promise<CheckResult> {
     const warnLimit = settings.warnLimit || 5;
-    const suggestions = writeGood(file.text, settings.options) as Array<any>;
+    const suggestions = new Array<string>();
+
+    file.lines.forEach((line, idx) => {
+      (writeGood(line, settings.options) as Array<WriteGoodResult>).forEach(
+        (s) =>
+          suggestions.push(
+            `Line ${idx}: Position: ${s.index}:${s.offset} ${s.reason}`
+          )
+      );
+    });
 
     log.debug(`Found ${suggestions.length} suggestions`);
 
@@ -28,7 +43,7 @@ export class WriteGood implements Check<WriteGoodSettings> {
       file: file.file,
       check: this.name,
     };
-    if (suggestions.length > warnLimit) {
+    if (suggestions.length >= warnLimit) {
       result.status = Status.warn;
     }
 

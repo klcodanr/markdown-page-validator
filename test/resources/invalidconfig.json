@@ -1,0 +1,10 @@
+{
+  "baseDirectory": "./test/resources/notafolder",
+  "mode": "matching",
+  "modeConfig": {},
+  "checks": [
+    {
+      "name": "WriteGood"
+    }
+  ]
+}
