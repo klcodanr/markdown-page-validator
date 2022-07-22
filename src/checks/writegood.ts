@@ -1,7 +1,7 @@
 import writeGood from "write-good";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../validator";
+import { MarkdownFile } from "../markdownfile";
 
 interface WriteGoodResult {
   index: number;

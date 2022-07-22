@@ -34,27 +34,11 @@ describe("Produced Report", function () {
         err = e;
       }
       expect(err).to.not.be.null;
-      expect("Base directory ./test/resources/idontexist does not exist").to.eq(
+      expect("Base ./test/resources/idontexist does not exist").to.eq(
         err.message
       );
     });
 
-    it("Base directory must be folder", async function () {
-      let err;
-      try {
-        await validate("./test/resources/simple/file.md", {
-          mode: Mode.Matching,
-          modeConfig: {},
-          checks: [],
-        });
-      } catch (e) {
-        err = e;
-      }
-      expect(err).to.not.be.null;
-      expect(
-        "Base directory ./test/resources/simple/file.md is not a directory"
-      ).to.eq(err.message);
-    });
 
     it("Can read non-markdown files", async function () {
       await validate("./test/resources/simple", {

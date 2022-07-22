@@ -6,7 +6,8 @@ import yargs from "yargs";
 import winston, { Logger } from "winston";
 import { Status } from "./check";
 import { ValidationConfig } from "./config";
-import { readMarkdownFile, Validator } from "./validator";
+import { Validator } from "./validator";
+import { parseMarkdownFile } from "./markdownfile";
 
 function getLog(args: any): Logger {
   const level = args.verbose ? "debug" : "error";
@@ -119,10 +120,10 @@ export function runCli() {
             default: false,
           });
       },
-      async function (args) {
+      function (args) {
         const log = getLog(args);
         log.info(`Parsing file: ${args.file}`);
-        const read = await readMarkdownFile(args.file);
+        const read = parseMarkdownFile(args.file);
         if (args.format === "yaml") {
           process.stdout.write(stringify(read));
         } else if (args.format === "csv") {

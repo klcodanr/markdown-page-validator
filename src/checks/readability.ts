@@ -1,7 +1,7 @@
 import readability from "text-readability";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../validator";
+import { MarkdownFile } from "../markdownfile";
 
 export interface ReadabilitySettings {
   warnLimit?: number;

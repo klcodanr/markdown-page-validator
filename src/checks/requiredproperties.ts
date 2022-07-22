@@ -1,6 +1,6 @@
-import { MarkdownFile, Result, updateStatus } from "../validator";
-
 import { Check, CheckResult, Status } from "../check";
+import { MarkdownFile } from "../markdownfile";
+import { Result, updateStatus } from "../validator";
 
 export interface RequiredPropertiesSettings {
   properties: Array<RequiredProperty | string>;

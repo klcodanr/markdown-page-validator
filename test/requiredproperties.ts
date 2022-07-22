@@ -1,15 +1,6 @@
-import { assert, expect } from "chai";
-import winston from "winston";
+import { expect } from "chai";
 import { Status } from "../src/check";
 import { RequiredProperties } from "../src/checks/requiredproperties";
-
-import { WriteGood } from "../src/checks/writegood";
-
-const log = winston.createLogger({
-  level: "fatal",
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console()],
-});
 
 describe("RequiredProperties", function () {
   it("name correct", async function () {

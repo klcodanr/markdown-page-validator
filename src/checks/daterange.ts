@@ -1,5 +1,5 @@
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../validator";
+import { MarkdownFile } from "../markdownfile";
 
 export interface DateRangeSettings {
   property: string;

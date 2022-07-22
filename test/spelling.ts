@@ -1,14 +1,7 @@
 import { expect } from "chai";
-import winston from "winston";
 import { Status } from "../src/check";
 
 import { Spelling } from "../src/checks/spelling";
-
-const log = winston.createLogger({
-  level: "fatal",
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console()],
-});
 
 describe("Spelling", function () {
   it("name correct", async function () {

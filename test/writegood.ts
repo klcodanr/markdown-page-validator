@@ -1,14 +1,8 @@
 import { expect } from "chai";
-import winston from "winston";
+
 import { Status } from "../src/check";
 
 import { WriteGood } from "../src/checks/writegood";
-
-const log = winston.createLogger({
-  level: "fatal",
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console()],
-});
 
 describe("WriteGood", function () {
   it("name correct", async function () {

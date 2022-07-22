@@ -1,7 +1,7 @@
 import spellcheck from "spellchecker";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../validator";
+import { MarkdownFile } from "../markdownfile";
 
 export interface SpellingSettings {
   customWords?: Array<string>;

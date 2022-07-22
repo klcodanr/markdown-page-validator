@@ -1,15 +1,8 @@
 import { expect } from "chai";
-import winston from "winston";
 import { readFileSync } from "fs";
 
 import { Status } from "../src/check";
 import { Readability } from "../src/checks/readability";
-
-const log = winston.createLogger({
-  level: "fatal",
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console()],
-});
 
 describe("Readability", function () {
   it("name correct", async function () {

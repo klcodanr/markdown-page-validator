@@ -4,17 +4,17 @@ import { runCli } from "./cli";
 import { ValidationConfig } from "./config";
 import validate, {
   FileResult,
-  MarkdownFile,
-  readMarkdownFile,
   Result,
   ValidationResult,
   Validator,
 } from "./validator";
 
+import { MarkdownFile, parseMarkdownFile } from "./markdownfile";
+
 runCli();
 
 export {
-  readMarkdownFile as parseMarkdownFile,
+  parseMarkdownFile,
   validate as default,
   validate,
   Check,

@@ -1,4 +1,4 @@
-import { MarkdownFile } from "./validator";
+import { MarkdownFile } from "./markdownfile";
 
 /**
  * The possible status from a check

@@ -1,14 +1,7 @@
 import { expect } from "chai";
-import winston from "winston";
 import { Status } from "../src/check";
 
 import { DateRange } from "../src/checks/daterange";
-
-const log = winston.createLogger({
-  level: "fatal",
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console()],
-});
 
 describe("DateRange", function () {
   it("name correct", async function () {

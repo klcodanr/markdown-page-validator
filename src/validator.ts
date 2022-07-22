@@ -1,9 +1,7 @@
 import assert from "assert";
 import { existsSync, readdirSync, statSync } from "fs";
-import { markdownToTxt } from "markdown-to-txt";
 import { simpleGit } from "simple-git";
 import winston, { Logger } from "winston";
-import yamlhead from "yamlhead";
 import { Check, CheckResult, Status } from "./check";
 import { DateRange } from "./checks/daterange";
 import { Readability } from "./checks/readability";
@@ -17,8 +15,13 @@ import {
   Mode,
   ValidationConfig,
 } from "./config";
+import { MarkdownFile, parseMarkdownFile } from "./markdownfile";
 
 function accumulateFiles(baseDir: string, files: Array<string>) {
+  if (statSync(baseDir).isFile()) {
+    files.push(baseDir);
+    return;
+  }
   const directoryFiles = readdirSync(baseDir);
   directoryFiles.forEach(function (file) {
     const path = `${baseDir}/${file}`;
@@ -27,23 +30,6 @@ function accumulateFiles(baseDir: string, files: Array<string>) {
     } else {
       files.push(path);
     }
-  });
-}
-
-function parseMarkdownFile(
-  file: string
-): Promise<{ properties: any; markdown: string }> {
-  return new Promise(function (resolve, reject) {
-    yamlhead(file, function (err: any, properties: any, markdown: string) {
-      if (err) {
-        reject(err);
-      } else {
-        if (!properties) {
-          properties = {};
-        }
-        resolve({ properties, markdown });
-      }
-    });
   });
 }
 
@@ -76,20 +62,6 @@ function isIncluded(
 }
 
 /**
- * Represents a parsed markdown file
- */
-export interface MarkdownFile {
-  /**
-   *
-   */
-  file: string;
-  lines: Array<string>;
-  markdown: string;
-  properties: Object;
-  text: string;
-}
-
-/**
  * Updates the status of the parent result if the child result is of a higher severity.
  * @param parentResult the parent result to update
  * @param childResult the child result
@@ -109,18 +81,6 @@ export function updateStatus(parentResult: Result, childResult: Result) {
   ) {
     parentResult.status = Status.warn;
   }
-}
-
-/**
- * Reads a markdown file at the specified path
- * @param file the file path to read
- * @returns the file with the YAML header (if present) available as the variable properties and the body in the text, markdown and lines variables
- */
-export async function readMarkdownFile(file: string): Promise<MarkdownFile> {
-  const { properties, markdown } = await parseMarkdownFile(file);
-  const text = markdownToTxt(markdown);
-  const lines = text.split(/[\r\n]+/);
-  return { properties, markdown, file, text, lines };
 }
 
 /**
@@ -217,25 +177,18 @@ export class Validator {
 
   /**
    *
-   * @param baseDirectory the path to the base directory to find the files
+   * @param base the path to the base directory to find the files (or a file)
    * @param config the configuration for this validation
    * @returns
    */
   async validate(
-    baseDirectory: string,
+    base: string,
     config: ValidationConfig
   ): Promise<ValidationResult> {
     let files = new Array<string>();
 
     // first validate the configuration
-    assert(
-      existsSync(baseDirectory),
-      `Base directory ${baseDirectory} does not exist`
-    );
-    assert(
-      statSync(baseDirectory).isDirectory(),
-      `Base directory ${baseDirectory} is not a directory`
-    );
+    assert(existsSync(base), `Base ${base} does not exist`);
     assert(config.checks.length > 0, "No checks specified");
     for (const check of config.checks) {
       assert(
@@ -249,11 +202,11 @@ export class Validator {
       includes: ".*.md",
     };
     if (config.mode !== Mode.Changed) {
-      accumulateFiles(baseDirectory, files);
+      accumulateFiles(base, files);
       files = files.filter((file) => isIncluded(file, pattern));
     } else {
       const modeConfig = config.modeConfig as ChangedModeConfig;
-      files = (await getChanges(modeConfig, baseDirectory)).files
+      files = (await getChanges(modeConfig, base)).files
         .map((f) => f.file)
         .filter((file) => existsSync(file) && isIncluded(file, pattern));
     }
@@ -274,7 +227,7 @@ export class Validator {
     for (const file of files) {
       this.log.debug(`Reading file: ${file}`);
       try {
-        const markdownFile = await readMarkdownFile(file);
+        const markdownFile = parseMarkdownFile(file);
 
         this.log.info(`Validating: ${markdownFile.file}`);
 
