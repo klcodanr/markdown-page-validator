@@ -1,3 +1,5 @@
+[![Node.js CI](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml/badge.svg)](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # Markdown Page Checker
 
 Runs checks against markdown pages with YAML front matter. Useful for validating static sites published with systems like Jekyll or Hugo. 
