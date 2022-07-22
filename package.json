@@ -1,11 +1,20 @@
 {
   "name": "markdown-page-checker",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A page checker for markdown pages with YAML front matter",
   "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
-    "build": "npx tsc",
-    "test": "node_modules/nyc/bin/nyc.js node_modules/ts-mocha/bin/ts-mocha -p tsconfig.json test/*.ts"
+    "clean": "npx rimraf dist && npx rimraf .nyc_output npx rimraf docs/api",
+    "build:ts": "npx tsc",
+    "build": "npm run clean && npm run build:ts && npm run test",
+    "test": "npm run test:it && npm run test:docs",
+    "test:it": "node_modules/nyc/bin/nyc.js -x 'dist/*' -x 'test/*' node_modules/ts-mocha/bin/ts-mocha -p tsconfig.json test/*.ts",
+    "test:docs": "node . validate --config md-checks.json --format yaml",
+    "docs": "npx typedoc --out docs/api src",
+    "version": "npm run docs && git add docs",
+    "release": "npx np",
+    "postdeploy": "npx branchsite --any-branch --no-yarn --directory docs"
   },
   "author": "Dan Klco",
   "license": "Apache-2.0",
@@ -21,12 +30,15 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "fast-csv": "^4.3.6",
+    "js-yaml": "^4.1.0",
     "markdown-to-txt": "^2.0.1",
     "simple-git": "^3.10.0",
     "spellchecker": "^3.7.1",
     "text-readability": "^1.0.5",
     "winston": "^3.8.1",
     "write-good": "^1.0.8",
+    "yaml": "^2.1.1",
     "yamlhead": "^0.2.0"
   }
 }

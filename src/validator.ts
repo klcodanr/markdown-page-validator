@@ -6,7 +6,9 @@ import winston, { Logger } from "winston";
 import yamlhead from "yamlhead";
 import { Check, CheckResult, Status } from "./check";
 import { DateRange } from "./checks/daterange";
+import { Readability } from "./checks/readability";
 import { RequiredProperties } from "./checks/requiredproperties";
+import { Spelling } from "./checks/spelling";
 import { WriteGood } from "./checks/writegood";
 
 import {
@@ -15,7 +17,6 @@ import {
   Mode,
   ValidationConfig,
 } from "./config";
-import { MarkdownFile } from "./request";
 
 function accumulateFiles(baseDir: string, files: Array<string>) {
   const directoryFiles = readdirSync(baseDir);
@@ -58,22 +59,41 @@ async function getChanges(config: ChangedModeConfig, baseDir: string) {
   return git.diffSummary([branch]);
 }
 
-function isIncluded(file: MarkdownFile, checkConfig: CheckConfig): boolean {
-  if (
-    checkConfig.includes &&
-    !new RegExp(checkConfig.includes).test(file.file)
-  ) {
+function isIncluded(
+  file: string,
+  config: {
+    includes?: string;
+    excludes?: string;
+  }
+): boolean {
+  if (config.includes && !new RegExp(config.includes).test(file)) {
     return false;
   }
-  if (
-    checkConfig.excludes &&
-    new RegExp(checkConfig.excludes).test(file.file)
-  ) {
+  if (config.excludes && new RegExp(config.excludes).test(file)) {
     return false;
   }
   return true;
 }
 
+/**
+ * Represents a parsed markdown file
+ */
+export interface MarkdownFile {
+  /**
+   *
+   */
+  file: string;
+  lines: Array<string>;
+  markdown: string;
+  properties: Object;
+  text: string;
+}
+
+/**
+ * Updates the status of the parent result if the child result is of a higher severity.
+ * @param parentResult the parent result to update
+ * @param childResult the child result
+ */
 export function updateStatus(parentResult: Result, childResult: Result) {
   if (childResult.status === Status.failure) {
     parentResult.status = Status.failure;
@@ -91,6 +111,11 @@ export function updateStatus(parentResult: Result, childResult: Result) {
   }
 }
 
+/**
+ * Reads a markdown file at the specified path
+ * @param file the file path to read
+ * @returns the file with the YAML header (if present) available as the variable properties and the body in the text, markdown and lines variables
+ */
 export async function readMarkdownFile(file: string): Promise<MarkdownFile> {
   const { properties, markdown } = await parseMarkdownFile(file);
   const text = markdownToTxt(markdown);
@@ -98,20 +123,49 @@ export async function readMarkdownFile(file: string): Promise<MarkdownFile> {
   return { properties, markdown, file, text, lines };
 }
 
+/**
+ * Base type for a result
+ */
 export interface Result {
+  /**
+   * The status of the result
+   */
   status: Status;
 }
 
+/**
+ * Validation result
+ */
 export interface ValidationResult extends Result {
+  /**
+   * The results of the validation as an array of file results in order validated
+   */
   results: Array<FileResult>;
+  summary: {
+    fileCount: number;
+    failures: number;
+    errors: number;
+    warnings: number;
+  };
 }
 
+/**
+ * Representation of the result of the checks run against a single file
+ */
 export interface FileResult extends Result {
+  /**
+   * The subpath of the file validated
+   */
   file: string;
-  status: Status;
+  /**
+   * The result of the checks
+   */
   checks: Array<CheckResult>;
 }
 
+/**
+ * Validates markdown files using checks
+ */
 export class Validator {
   private checks: Map<string, Check<any>>;
   private log: Logger;
@@ -124,14 +178,26 @@ export class Validator {
     });
     this.checks = new Map<string, Check<any>>();
     this.addCheck(new DateRange());
+    this.addCheck(new Readability());
     this.addCheck(new RequiredProperties());
+    this.addCheck(new Spelling());
     this.addCheck(new WriteGood());
   }
 
+  /**
+   * Adds a new check as available to the validator instance
+   *
+   * @param check the check to add
+   */
   addCheck(check: Check<any>) {
     this.checks.set(check.name, check);
   }
 
+  /**
+   * Removes a check as available to the validator instance
+   *
+   * @param check the check (or name of the check) to remove
+   */
   removeCheck(check: string | Check<any>) {
     if (typeof check === "string") {
       this.checks.delete(check);
@@ -140,13 +206,26 @@ export class Validator {
     }
   }
 
+  /**
+   * Sets the logger for this validator instance
+   *
+   * @param log the logger to set
+   */
   setLogger(log: Logger) {
     this.log = log;
   }
 
-  async validate(config: ValidationConfig): Promise<ValidationResult> {
+  /**
+   *
+   * @param baseDirectory the path to the base directory to find the files
+   * @param config the configuration for this validation
+   * @returns
+   */
+  async validate(
+    baseDirectory: string,
+    config: ValidationConfig
+  ): Promise<ValidationResult> {
     let files = new Array<string>();
-    const baseDirectory = config.baseDirectory || process.cwd();
 
     // first validate the configuration
     assert(
@@ -166,49 +245,78 @@ export class Validator {
     }
 
     // next determine the set of files to evaluate
-    const pattern = new RegExp(config.modeConfig.pattern || ".*.md");
-    if (config.mode === Mode.Matching) {
+    const pattern = config.modeConfig || {
+      includes: ".*.md",
+    };
+    if (config.mode !== Mode.Changed) {
       accumulateFiles(baseDirectory, files);
-      files = files.filter((file) => pattern.test(file));
+      files = files.filter((file) => isIncluded(file, pattern));
     } else {
       const modeConfig = config.modeConfig as ChangedModeConfig;
       files = (await getChanges(modeConfig, baseDirectory)).files
         .map((f) => f.file)
-        .filter((file) => pattern.test(file));
+        .filter((file) => existsSync(file) && isIncluded(file, pattern));
     }
 
     // next read the files
-    const toValidate = new Array<MarkdownFile>();
-    this.log.debug(`Reading ${files.length} files`);
-    for (const file of files) {
-      this.log.debug(`Reading file: ${file}`);
-      toValidate.push(await readMarkdownFile(file));
-    }
-
-    // finally run the checks
     const validationResult = {
       status: Status.success,
       results: new Array<FileResult>(),
+      summary: {
+        fileCount: 0,
+        failures: 0,
+        errors: 0,
+        warnings: 0,
+      },
     };
-    for (const file of toValidate) {
-      this.log.info(`Validating: ${file.file}`);
+    validationResult.summary.fileCount = files.length;
+    this.log.debug(`Reading ${files.length} files`);
+    for (const file of files) {
+      this.log.debug(`Reading file: ${file}`);
+      try {
+        const markdownFile = await readMarkdownFile(file);
 
-      const fileResult = {
-        status: Status.success,
-        checks: new Array<CheckResult>(),
-        file: file.file,
-      };
-      for (const checkConfig of config.checks) {
-        if (isIncluded(file, checkConfig)) {
-          const checkResult = await this.runCheck(checkConfig, file);
-          fileResult.checks.push(checkResult);
-          updateStatus(fileResult, checkResult);
-        } else {
-          this.log.info(`Skipping check: ${checkConfig.name}`);
+        this.log.info(`Validating: ${markdownFile.file}`);
+
+        const fileResult = {
+          status: Status.success,
+          checks: new Array<CheckResult>(),
+          file: markdownFile.file,
+        };
+        for (const checkConfig of config.checks) {
+          if (isIncluded(markdownFile.file, checkConfig)) {
+            const checkResult = await this.runCheck(checkConfig, markdownFile);
+            fileResult.checks.push(checkResult);
+            updateStatus(fileResult, checkResult);
+          } else {
+            this.log.info(`Skipping check: ${checkConfig.name}`);
+          }
         }
+        fileResult.checks.forEach((ch) => {
+          if (ch.status === Status.failure) {
+            validationResult.summary.failures++;
+          } else if (ch.status === Status.error) {
+            validationResult.summary.errors++;
+          } else if (ch.status === Status.warn) {
+            validationResult.summary.warnings++;
+          }
+        });
+        updateStatus(validationResult, fileResult);
+        validationResult.results.push(fileResult);
+      } catch (e) {
+        validationResult.results.push({
+          file,
+          checks: [
+            {
+              status: Status.warn,
+              check: "validator.ReadFile",
+              message: `Failed to read file: ${file}, Cause: ${e.toString()}`,
+            },
+          ],
+          status: Status.warn,
+        });
+        validationResult.summary.warnings++;
       }
-      updateStatus(validationResult, fileResult);
-      validationResult.results.push(fileResult);
     }
 
     return validationResult;
@@ -223,7 +331,7 @@ export class Validator {
     try {
       result = await this.checks
         .get(checkConfig.name)
-        .check(file, checkConfig.settings || {}, this.log);
+        .check(file, checkConfig.settings || {});
       this.log.info(`Check result: ${result.status}: ${result.message}`);
     } catch (e) {
       this.log.warn(
@@ -234,7 +342,6 @@ export class Validator {
         status: Status.failure,
         message: `Failed to execute check [${checkConfig.name}], message: ${e.message}`,
         check: checkConfig.name,
-        file: file.file,
         detail: e,
       };
     }
@@ -244,7 +351,8 @@ export class Validator {
 }
 
 export default async function validate(
+  baseDirectory: string,
   config: ValidationConfig
 ): Promise<ValidationResult> {
-  return new Validator().validate(config);
+  return new Validator().validate(baseDirectory, config);
 }

@@ -35,8 +35,7 @@ describe("Readability", function () {
         to release built up tension.`,
         lines: [],
       },
-      { errorLimit: 14, warnLimit: 9 },
-      log
+      { errorLimit: 14, warnLimit: 9 }
     );
     expect(result.status).to.equal(Status.error);
   });
@@ -50,8 +49,7 @@ describe("Readability", function () {
         text: readFileSync("test/resources/simple.txt", "utf8"),
         lines: [],
       },
-      { errorLimit: 14, warnLimit: 9 },
-      log
+      { errorLimit: 14, warnLimit: 9 }
     );
     expect(result.status).to.equal(Status.success);
   });
@@ -65,8 +63,7 @@ describe("Readability", function () {
         text: readFileSync("test/resources/simple.txt", "utf8"),
         lines: [],
       },
-      { errorLimit: 14, warnLimit: 6 },
-      log
+      { errorLimit: 14, warnLimit: 6 }
     );
     expect(result.status).to.equal(Status.warn);
   });

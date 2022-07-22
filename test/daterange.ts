@@ -26,8 +26,7 @@ describe("DateRange", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { property: "date", afterOffset: 1000, beforeOffset: 1000 },
-      log
+      { property: "date", afterOffset: 1000, beforeOffset: 1000 }
     );
     expect(Status.success).to.equal(result.status);
   });
@@ -43,8 +42,7 @@ describe("DateRange", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { property: "date", afterOffset: 1000 },
-      log
+      { property: "date", afterOffset: 1000 }
     );
     expect(Status.error).to.equal(result.status);
   });
@@ -60,8 +58,7 @@ describe("DateRange", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { property: "date", beforeOffset: 1000 },
-      log
+      { property: "date", beforeOffset: 1000 }
     );
     expect(Status.error).to.equal(result.status);
   });
@@ -76,8 +73,7 @@ describe("DateRange", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { property: "date", afterOffset: 1000 },
-      log
+      { property: "date", afterOffset: 1000 }
     );
     expect(Status.error).to.equal(result.status);
   });

@@ -1,0 +1,44 @@
+{
+  "modeConfig": {
+    "excludes": ".*(validation|node_modules|_definitions|_includes|_template|_services|_site|_teams).*",
+    "includes": ".*\\.md"
+  },
+  "checks": [
+    {
+      "name": "DateRange",
+      "settings": {
+        "property": "lastReview",
+        "beforeOffset": 90,
+        "afterOffset": 90,
+        "includes": "[alerts|howto|oncall|service-requests|sop].*"
+      }
+    },
+    {
+      "name": "Readability",
+      "settings": {
+        "errorLimit": 12,
+        "warnLimit": 9
+      }
+    },
+    {
+      "name": "RequiredProperties",
+      "settings": {
+        "properties": ["title", "maintainer"]
+      },
+      "includes": "[alerts|howto|oncall|service-requests|sop].*"
+    },
+    {
+      "name": "RequiredProperties",
+      "settings": {
+        "properties": ["alertname"]
+      },
+      "includes": "alert/.*"
+    },
+    {
+      "name": "Spelling"
+    },
+    {
+      "name": "WriteGood"
+    }
+  ]
+}

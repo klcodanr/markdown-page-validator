@@ -7,7 +7,8 @@ export interface ChangedModeConfig extends ModeConfig {
   remote?: string;
 }
 export interface ModeConfig {
-  pattern?: string;
+  includes?: string;
+  excludes?: string;
 }
 export interface CheckConfig {
   name: string;
@@ -16,8 +17,7 @@ export interface CheckConfig {
   settings?: any;
 }
 export interface ValidationConfig {
-  mode: Mode;
-  modeConfig: ModeConfig | ChangedModeConfig;
-  baseDirectory?: string;
+  mode?: Mode;
+  modeConfig?: ModeConfig | ChangedModeConfig;
   checks: Array<CheckConfig>;
 }

@@ -16,7 +16,7 @@ describe("CLI", function () {
 
   it("can validate files", function () {
     const resp = execSync(
-      "/usr/bin/env node . validate --config test/resources/config.json"
+      "/usr/bin/env node . validate --config test/resources/config.json --path test/resources/simple"
     ).toString();
     expect(resp).to.not.be.null;
     expect(JSON.stringify(JSON.parse(resp))).equal(
@@ -30,22 +30,22 @@ describe("CLI", function () {
                 status: "Info",
                 message: "Found 0 suggestions",
                 detail: [],
-                file: "test/resources/nested/folder1/file1.md",
                 check: "WriteGood",
               },
             ],
-            file: "test/resources/nested/folder1/file1.md",
-          },
+            file: "test/resources/simple/file.md",
+          }
         ],
+        summary: { fileCount: 1, failures: 0, errors: 0, warnings: 0 },
       })
     );
   });
 
-  it("Fails on invalid configurations", function () {
+  it("Fails on invalid base path", function () {
     let err = null;
     try {
       execSync(
-        "/usr/bin/env node . validate --config test/resources/invalidconfig.json"
+        "/usr/bin/env node . validate --config test/resources/config.json  --path test/resources/notafolder"
       ).toString();
     } catch (e) {
       err = e;

@@ -1,0 +1,31 @@
+{
+  "modeConfig": {
+    "excludes": "(test|node_modules)/.*",
+    "includes": ".*\\.md"
+  },
+  "checks": [
+    {
+      "name": "Readability",
+      "settings": {
+        "errorLimit": 20,
+        "warnLimit": 10
+      }
+    },
+    {
+      "name": "RequiredProperties",
+      "settings": {
+        "properties": ["title"]
+      },
+      "excludes": "README.md"
+    },
+    {
+      "name": "Spelling",
+      "settings": {
+        "customWords": ["npm", "md", "npx", "frontmatter"]
+      }
+    },
+    {
+      "name": "WriteGood"
+    }
+  ]
+}

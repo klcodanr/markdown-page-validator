@@ -10,8 +10,7 @@ describe("Produced Report", function () {
     it("Requires checks", async function () {
       let err;
       try {
-        await validate({
-          baseDirectory: "./test/resources/simple",
+        await validate("./test/resources/simple", {
           mode: Mode.Matching,
           modeConfig: {},
           checks: [],
@@ -26,8 +25,7 @@ describe("Produced Report", function () {
     it("Base directory must exist", async function () {
       let err;
       try {
-        await validate({
-          baseDirectory: "./test/resources/idontexist",
+        await validate("./test/resources/idontexist", {
           mode: Mode.Matching,
           modeConfig: {},
           checks: [],
@@ -44,8 +42,7 @@ describe("Produced Report", function () {
     it("Base directory must be folder", async function () {
       let err;
       try {
-        await validate({
-          baseDirectory: "./test/resources/simple/file.md",
+        await validate("./test/resources/simple/file.md", {
           mode: Mode.Matching,
           modeConfig: {},
           checks: [],
@@ -60,11 +57,10 @@ describe("Produced Report", function () {
     });
 
     it("Can read non-markdown files", async function () {
-      await validate({
-        baseDirectory: "./test/resources/simple",
+      await validate("./test/resources/simple", {
         mode: Mode.Matching,
         modeConfig: {
-          pattern: ".*\\..*",
+          includes: ".*\\..*",
         },
         checks: [
           {
@@ -75,10 +71,8 @@ describe("Produced Report", function () {
     });
 
     it("Can run validator", async function () {
-      const result = await validate({
-        baseDirectory: "./test/resources/simple",
+      const result = await validate("./test/resources/simple", {
         mode: Mode.Matching,
-        modeConfig: {},
         checks: [
           {
             name: "WriteGood",
@@ -89,7 +83,7 @@ describe("Produced Report", function () {
               properties: [
                 "title",
                 {
-                  key: "layout",
+                  property: "layout",
                   allowedValues: ["default"],
                 },
               ],
@@ -97,20 +91,20 @@ describe("Produced Report", function () {
           },
         ],
       });
-      expect(Status.success).to.eq(result.status);
-      expect(1).to.eq(result.results.length);
-      expect(2).to.eq(result.results[0].checks.length);
+      expect(result.status).to.eq(Status.success);
+      expect(result.results.length).to.eq(1);
+      expect(result.results[0].checks.length).to.eq(2);
     });
   });
 
   describe("Git Diff", function () {
     it("Can use changes", async function () {
       this.timeout(120000);
-      const result = await validate({
-        baseDirectory: "./test/resources/simple",
+      const result = await validate("./test/resources/simple", {
         mode: Mode.Changed,
         modeConfig: {
           branch: "main",
+          includes: ".*\\.md",
         },
         checks: [
           {
@@ -125,10 +119,8 @@ describe("Produced Report", function () {
   describe("Advanced Config", function () {
     it("Can construct", async function () {
       const validator = new Validator();
-      const result = await validator.validate({
-        baseDirectory: "./test/resources/simple",
+      const result = await validator.validate("./test/resources/simple", {
         mode: Mode.Matching,
-        modeConfig: {},
         checks: [
           {
             name: "WriteGood",
@@ -139,7 +131,7 @@ describe("Produced Report", function () {
               properties: [
                 "title",
                 {
-                  key: "layout",
+                  property: "layout",
                   allowedValues: ["default"],
                 },
               ],
@@ -156,8 +148,7 @@ describe("Produced Report", function () {
       validator.removeCheck("WriteGood");
       let err = null;
       try {
-        await validator.validate({
-          baseDirectory: "./test/resources/simple",
+        await validator.validate("./test/resources/simple", {
           mode: Mode.Matching,
           modeConfig: {},
           checks: [
@@ -176,8 +167,7 @@ describe("Produced Report", function () {
       validator.removeCheck(new WriteGood());
       let err = null;
       try {
-        await validator.validate({
-          baseDirectory: "./test/resources/simple",
+        await validator.validate("./test/resources/simple", {
           mode: Mode.Matching,
           modeConfig: {},
           checks: [
@@ -193,8 +183,7 @@ describe("Produced Report", function () {
     });
 
     it("Can traverse folders", async function () {
-      const result = await validate({
-        baseDirectory: "./test/resources/nested",
+      const result = await validate("./test/resources/nested", {
         mode: Mode.Matching,
         modeConfig: {},
         checks: [
@@ -214,8 +203,7 @@ describe("Produced Report", function () {
     });
 
     it("Can limit checks by include", async function () {
-      const result = await validate({
-        baseDirectory: "./test/resources/nested",
+      const result = await validate("./test/resources/nested", {
         mode: Mode.Matching,
         modeConfig: {},
         checks: [
@@ -244,8 +232,7 @@ describe("Produced Report", function () {
     });
 
     it("Can limit checks by exclude", async function () {
-      const result = await validate({
-        baseDirectory: "./test/resources/nested",
+      const result = await validate("./test/resources/nested", {
         mode: Mode.Matching,
         modeConfig: {},
         checks: [
@@ -277,13 +264,12 @@ describe("Produced Report", function () {
       const validator = new Validator();
       const faily: Check<any> = {
         name: "faily",
-        check(_file, _settings, _log) {
+        check(_file, _settings) {
           throw new Error("fail!");
         },
       };
       validator.addCheck(faily);
-      const result = await validator.validate({
-        baseDirectory: "./test/resources/simple",
+      const result = await validator.validate("./test/resources/simple", {
         mode: Mode.Matching,
         modeConfig: {},
         checks: [
@@ -299,8 +285,7 @@ describe("Produced Report", function () {
     });
 
     it("Can read and validate date", async function () {
-      const result = await validate({
-        baseDirectory: "./test/resources/nested/folder1",
+      const result = await validate("./test/resources/nested/folder1", {
         mode: Mode.Matching,
         modeConfig: {},
         checks: [

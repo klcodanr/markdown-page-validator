@@ -27,8 +27,7 @@ describe("RequiredProperties", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { properties: ["title"] },
-      log
+      { properties: ["title"] }
     );
     expect(result.status).to.equal(Status.success);
   });
@@ -43,8 +42,7 @@ describe("RequiredProperties", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { properties: [{ key: "test", invalidStatus: Status.warn }] },
-      log
+      { properties: [{ property: "test", invalidStatus: Status.warn }] }
     );
     expect(result.status).to.equal(Status.warn);
   });
@@ -61,8 +59,7 @@ describe("RequiredProperties", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { properties: [{ key: "test", allowedValues: ["value", 1] }] },
-      log
+      { properties: [{ property: "test", allowedValues: ["value", 1] }] }
     );
     expect(result.status).to.equal(Status.error);
 
@@ -76,8 +73,7 @@ describe("RequiredProperties", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      { properties: [{ key: "test", allowedValues: ["value", 1] }] },
-      log
+      { properties: [{ property: "test", allowedValues: ["value", 1] }] }
     );
     expect(result.status).to.equal(Status.success);
   });

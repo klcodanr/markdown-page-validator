@@ -1,8 +1,7 @@
-import { Logger } from "winston";
 import readability from "text-readability";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../request";
+import { MarkdownFile } from "../validator";
 
 export interface ReadabilitySettings {
   warnLimit?: number;
@@ -14,8 +13,7 @@ export class Readability implements Check<ReadabilitySettings> {
   name = "Readability";
   async check(
     file: MarkdownFile,
-    settings: ReadabilitySettings,
-    _log: Logger
+    settings: ReadabilitySettings
   ): Promise<CheckResult> {
     const score = readability.textStandard(file.text, true) as number;
 
@@ -41,16 +39,18 @@ export class Readability implements Check<ReadabilitySettings> {
       };
     }
 
+    let message = `Readbility score: ${score}`;
     let status = Status.success;
     if (score >= settings.errorLimit) {
       status = Status.error;
+      message = `Readbility score: ${score} is higher than ${settings.errorLimit}`;
     } else if (score >= settings.warnLimit) {
       status = Status.warn;
+      message = `Readbility score: ${score} is higher than ${settings.warnLimit}`;
     }
     return {
       status,
-      message: `Readbility score: ${score}`,
-      file: file.file,
+      message,
       check: this.name,
       detail,
     };

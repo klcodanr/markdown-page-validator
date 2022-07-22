@@ -1,15 +1,13 @@
-import { Logger } from "winston";
-import { Result, updateStatus } from "../validator";
+import { MarkdownFile, Result, updateStatus } from "../validator";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../request";
 
 export interface RequiredPropertiesSettings {
   properties: Array<RequiredProperty | string>;
 }
 
 export interface RequiredProperty {
-  key: string;
+  property: string;
   allowedValues?: Array<any>;
   invalidStatus?: Status;
 }
@@ -26,8 +24,7 @@ export class RequiredProperties implements Check<RequiredPropertiesSettings> {
   name = "RequiredProperties";
   async check(
     file: MarkdownFile,
-    settings: RequiredPropertiesSettings,
-    _log: Logger
+    settings: RequiredPropertiesSettings
   ): Promise<CheckResult> {
     const summary: Summary = {
       properties: new Array<PropertyResult>(),
@@ -43,7 +40,6 @@ export class RequiredProperties implements Check<RequiredPropertiesSettings> {
       status: summary.status,
       message: `Checked: ${settings.properties.length} properties, result: ${summary.status}`,
       detail: summary.properties,
-      file: file.file,
       check: this.name,
     };
   }
@@ -52,36 +48,36 @@ export class RequiredProperties implements Check<RequiredPropertiesSettings> {
     properties: Object,
     p: RequiredProperty | string
   ): PropertyResult {
-    let property: RequiredProperty;
+    let settings: RequiredProperty;
     if (typeof p === "string") {
-      property = {
-        key: p,
+      settings = {
+        property: p,
       };
     } else {
-      property = p;
+      settings = p;
     }
-    const invalidStatus = property.invalidStatus || Status.error;
+    const invalidStatus = settings.invalidStatus || Status.error;
 
-    if (!properties.hasOwnProperty(property.key)) {
+    if (!properties.hasOwnProperty(settings.property)) {
       return {
-        message: `Missing property: ${property.key}`,
+        message: `Missing property: ${settings.property}`,
         status: invalidStatus,
       };
     }
 
     if (
-      property.allowedValues &&
-      property.allowedValues.indexOf(properties[property.key])
+      settings.allowedValues &&
+      settings.allowedValues.indexOf(properties[settings.property])
     ) {
       return {
-        message: `Invalid value: ${properties[property.key]} for: ${
-          property.key
-        }, must be one of: ${JSON.stringify(property.allowedValues)}`,
+        message: `Invalid value: ${properties[settings.property]} for: ${
+          settings.property
+        }, must be one of: ${JSON.stringify(settings.allowedValues)}`,
         status: invalidStatus,
       };
     }
     return {
-      message: `Property ${property.key} is valid`,
+      message: `Property ${settings.property} is valid`,
       status: Status.success,
     };
   }

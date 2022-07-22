@@ -1,8 +1,7 @@
-import { Logger } from "winston";
 import writeGood from "write-good";
 
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../request";
+import { MarkdownFile } from "../validator";
 
 interface WriteGoodResult {
   index: number;
@@ -19,8 +18,7 @@ export class WriteGood implements Check<WriteGoodSettings> {
   name = "WriteGood";
   async check(
     file: MarkdownFile,
-    settings: WriteGoodSettings,
-    log: Logger
+    settings: WriteGoodSettings
   ): Promise<CheckResult> {
     const warnLimit = settings.warnLimit || 5;
     const suggestions = new Array<string>();
@@ -34,13 +32,10 @@ export class WriteGood implements Check<WriteGoodSettings> {
       );
     });
 
-    log.debug(`Found ${suggestions.length} suggestions`);
-
     const result = {
       status: Status.info,
       message: `Found ${suggestions.length} suggestions`,
       detail: suggestions,
-      file: file.file,
       check: this.name,
     };
     if (suggestions.length >= warnLimit) {

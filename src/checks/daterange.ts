@@ -1,7 +1,5 @@
-import { Logger } from "winston";
-
 import { Check, CheckResult, Status } from "../check";
-import { MarkdownFile } from "../request";
+import { MarkdownFile } from "../validator";
 
 export interface DateRangeSettings {
   property: string;
@@ -13,15 +11,13 @@ export class DateRange implements Check<DateRangeSettings> {
   name = "DateRange";
   async check(
     file: MarkdownFile,
-    settings: DateRangeSettings,
-    _log: Logger
+    settings: DateRangeSettings
   ): Promise<CheckResult> {
     const value: Date = file.properties[settings.property];
     if (!value) {
       return {
         status: Status.error,
         message: `No date found for: ${settings.property}`,
-        file: file.file,
         check: this.name,
       };
     }
@@ -34,7 +30,6 @@ export class DateRange implements Check<DateRangeSettings> {
       return {
         status: Status.success,
         message: `Date for ${settings.property} within range`,
-        file: file.file,
         check: this.name,
       };
     } else {
@@ -43,7 +38,6 @@ export class DateRange implements Check<DateRangeSettings> {
         message: `Date ${value.toISOString()} for ${
           settings.property
         } not range`,
-        file: file.file,
         check: this.name,
       };
     }

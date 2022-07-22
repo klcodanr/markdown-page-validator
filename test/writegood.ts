@@ -26,8 +26,7 @@ describe("WriteGood", function () {
         text: "Hello World",
         lines: ["Hello World"],
       },
-      {},
-      log
+      {}
     );
     expect(Status.info).to.equal(result.status);
   });
@@ -42,8 +41,7 @@ describe("WriteGood", function () {
         text: "so I like to write code but maybe not",
         lines: ["so I like to write code but maybe not"],
       },
-      { warnLimit: 1 },
-      log
+      { warnLimit: 1 }
     );
     expect(result.status).to.equal(Status.warn);
     expect(result.detail[0]).to.equal(
