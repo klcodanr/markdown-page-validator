@@ -17,7 +17,7 @@ export class Readability implements Check<ReadabilitySettings> {
   ): Promise<CheckResult> {
     const score = readability.textStandard(file.text, true) as number;
 
-    let detail;
+    let detail: object;
     if (settings.includeDetail) {
       detail = {
         fleschReadingEase: readability.fleschReadingEase(file.text),

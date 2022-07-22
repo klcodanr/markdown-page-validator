@@ -16,7 +16,7 @@
       "settings": {
         "properties": ["title"]
       },
-      "excludes": "README.md"
+      "excludes": "(README.md|\\.github/.*)"
     },
     {
       "name": "Spelling",
