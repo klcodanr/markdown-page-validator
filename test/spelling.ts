@@ -24,7 +24,7 @@ describe("Spelling", function () {
     expect(result.status).to.equal(Status.success);
   });
 
-  it("can set warn limit", async function () {
+  xit("can set warn limit", async function () {
     const spelling = new Spelling();
     const result = await spelling.check(
       {
@@ -42,7 +42,7 @@ describe("Spelling", function () {
     );
   });
 
-  it("can set error limit", async function () {
+  xit("can set error limit", async function () {
     const spelling = new Spelling();
     const result = await spelling.check(
       {
