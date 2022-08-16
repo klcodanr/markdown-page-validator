@@ -21,7 +21,7 @@
     {
       "name": "Spelling",
       "settings": {
-        "customWords": ["npm", "md", "npx", "frontmatter"]
+        "customWords": ["npm", "md", "npx", "frontmatter", "Node.js"]
       }
     },
     {

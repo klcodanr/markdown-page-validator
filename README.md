@@ -1,4 +1,4 @@
-[![Node.js CI](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml/badge.svg)](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Node.js CI](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml/badge.svg)](https://github.com/klcodanr/markdown-page-validator/actions/workflows/node.js.yml) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=klcodanr_markdown-page-validator&metric=coverage)](https://sonarcloud.io/summary/new_code?id=klcodanr_markdown-page-validator) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # Markdown Page Checker
 
@@ -145,7 +145,37 @@ Validates common writing mistakes, see https://github.com/btford/write-good
 - warnLimit: optional number - issues count above this number will trigger a warning
 - options: optional object - a WriteGood options object, see: https://github.com/btford/write-good#api
 
+## Custom Checks
 
+You can add custom checks when using Markdown Page Checker via [API Usage](#api-usage). To create a custom checker, first implement the [Check](./src/check.ts) interface and create your settings interface, for example:
+
+    import {Check, CheckResult, MarkdownFile, Status} from 'markdown-page-checker';
+
+    interface HappySettings {
+        happy: boolean
+    }
+    
+    class MyHappyCheck implements Check<HappySettings> {
+        
+        name: 'HappyCheck';
+
+        check(markdownFile: MarkdownFile, settings: HappySettings): Promise<CheckResult> {
+            return {
+                status: settings.happy ? Status.success : Status.error,
+                message: `Am I happy? ${settings.happy}`
+                check: this.name
+            }
+        }
+    }
+
+Then pass the custom check into your validator:
+
+    import {Validator} from 'markdown-page-checker'
+
+    // from the code snippet above
+    const customCheck = new HappyCheck();
+    const validator = new Validator();
+    validator.addCheck(customCheck);
 
 
 

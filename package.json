@@ -13,11 +13,16 @@
     "test:docs": "node . validate --config md-checks.json --format yaml",
     "docs": "npx typedoc --out docs/api src",
     "version": "npm run docs && git add docs",
+    "prepublish": "npm run build",
     "release": "npx np",
     "postdeploy": "npx branchsite --any-branch --no-yarn --directory docs"
   },
   "author": "Dan Klco",
   "license": "Apache-2.0",
+  "np": {
+		"yarn": false,
+		"contents": "dist"
+  },
   "devDependencies": {
     "@types/chai": "^4.3.1",
     "@types/js-yaml": "^4.0.5",
