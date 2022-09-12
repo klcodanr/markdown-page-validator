@@ -42,7 +42,7 @@
     "simple-git": "^3.10.0",
     "spellchecker": "^3.7.1",
     "text-readability": "^1.0.5",
-    "winston": "^3.8.1",
+    "winston": "^3.8.2",
     "write-good": "^1.0.8",
     "yaml": "^2.1.1"
   }
